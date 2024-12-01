@@ -35,7 +35,10 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    pics = []
+    for pic in data:
+        pics.append(pic['pic_url'])
+    return jsonify(pics), 200
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +47,12 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    for pic in data:
+        if pic['id'] == id:
+            return jsonify(pic),200
+    
+    return jsonify(message="Picture not found"), 404
+    
 
 
 ######################################################################
@@ -52,7 +60,13 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    new_pic = request.json
+    for pic in data:
+        if new_pic['id'] == pic['id']:
+            return {"Message": f"picture with id {pic['id']} already present"}, 302
+    data.append(new_pic)
+
+    return jsonify(new_pic), 201
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +75,25 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    pic_to_update = request.json
+
+    for pic in data:
+        if pic['id'] == pic_to_update['id']:
+            data.remove(pic)
+            data.append(pic_to_update)
+            return jsonify(pic_to_update), 200
+    
+    return jsonify(message='picture not found'), 404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    
+    for pic in data:
+        if pic['id'] == id:
+            data.remove(pic)
+            return {}, 204
+    
+    return jsonify(message='picture not found'), 404
